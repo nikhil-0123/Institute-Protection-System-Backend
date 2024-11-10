@@ -38,14 +38,13 @@ def login():
     
     cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", (username, password))
     user = cursor.fetchone()
-    
     conn.close()
     
     if user:
         print("user logined in system")
         return jsonify({"message": "Login successful", "user_id": user['id']})
     else:
-        print("Invalid User")
+        print("error: Invalid User")
         return jsonify({"message": "Invalid credentials"}), 401
 
 @app.route('/sensor-data', methods=['GET'])
@@ -55,14 +54,13 @@ def get_sensor_data():
     
     cursor.execute("SELECT * FROM sensor_data ORDER BY timestamp DESC LIMIT 1")
     latest_data = cursor.fetchone()
-    
     conn.close()
     
     if latest_data:
-        print("data send : ",jsonify(latest_data))
+        print("data send : ",latest_data)
         return jsonify(latest_data)
     else:
-        print("Error")
+        print("Error: No data available")
         return jsonify({"message": "No data available"}), 404
 
 
@@ -75,7 +73,7 @@ def upload_data():
     required_keys = ['temperature', 'gas_level', 'light_intensity', 'fire_detected', 'fan_status', 'led_status']
     for key in required_keys:
         if key not in data:
-            print(jsonify({"error": f"'{key}' is required"}), 400)
+            print(f"error: '{key}' is required")
             return jsonify({"error": f"'{key}' is required"}), 400
 
     try:
@@ -95,7 +93,6 @@ def upload_data():
         ))
         conn.commit()
         print("Data uploaded successfully")
-
         return jsonify({"message": "Data uploaded successfully"}), 201
 
     except Exception as e:
