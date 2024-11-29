@@ -102,3 +102,44 @@ def upload_data():
     finally:
         cursor.close()
         conn.close()
+
+def get_hourly_averages():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = """
+    SELECT 
+        DATE_TRUNC('hour', timestamp) AS hour,
+        AVG(temperature) AS avg_temperature,
+        AVG(gas_level) AS avg_gas,
+        BOOL_OR(light_intensity) AS avg_light,
+        BOOL_OR(fire_detected) AS avg_fire,
+        BOOL_OR(fan_status::boolean) AS avg_fan,
+        BOOL_OR(led_status::boolean) AS avg_led
+    FROM sensor_data
+    WHERE timestamp >= NOW() - INTERVAL '24 HOURS'
+    GROUP BY hour
+    ORDER BY hour;
+    """
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    conn.close()
+
+    results = []
+    for row in rows:
+        results.append({
+            "hour": row[0].strftime("%H:00"),
+            "avg_temperature": round(row[1], 2),
+            "avg_gas": round(row[2], 2),
+            "avg_light": "true" if row[3] else "false",
+            "avg_fire": "true" if row[4] else "false",
+            "avg_fan": "true" if row[5] else "false",
+            "avg_led": "true" if row[6] else "false",
+        })
+
+    return results
+
+@app.route("/api/hourly-averages", methods=["GET"])
+def hourly_averages():
+    data = get_hourly_averages()
+    return jsonify(data)
