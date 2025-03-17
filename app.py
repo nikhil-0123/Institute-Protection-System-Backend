@@ -12,7 +12,8 @@ DATABASE_CONFIG = {
     'dbname': os.getenv('DB_DATABASE'),
     'user': os.getenv('DB_USER'),
     'password': os.getenv('DB_PASSWORD'),
-    'host': os.getenv('DB_HOST')
+    'host': os.getenv('DB_HOST'),
+    'port': os.getenv('DB_PORT')
 }
 
 def get_db_connection():
@@ -20,7 +21,8 @@ def get_db_connection():
         dbname=DATABASE_CONFIG['dbname'],
         user=DATABASE_CONFIG['user'],
         password=DATABASE_CONFIG['password'],
-        host=DATABASE_CONFIG['host']
+        host=DATABASE_CONFIG['host'],
+        port=DATABASE_CONFIG['port']
     )
     return conn
 
